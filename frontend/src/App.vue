@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {onBeforeMount, onMounted, ref} from "vue";
-import {ExportMccExcel, ExportRawJson, GetCurrentVersion, GetLatestVersion, GetLogInfo, GetPoolInfo, GetSettingFont, GetUserList, HandleCommunityTasks, ImportMccExcel, ImportRawJson, MergeEreRecord, UpdatePoolInfo, UpdateTo} from "../wailsjs/go/main/App";
+import {computed, onBeforeMount, onMounted, ref} from "vue";
+import {ExportMccExcel, ExportRawJson, GetCurrentVersion, GetLatestVersion, GetLogInfo, GetPoolInfo, GetSettingFont, GetUserList, HandleCommunityTasks, ImportMccExcel, ImportRawJson, MergeEreRecord, UpdatePoolInfo, UpdateTo, SetLogInfo} from "../wailsjs/go/main/App";
 import PoolCard from "./components/PoolCard.vue";
 import {model} from "../wailsjs/go/models";
 import 'element-plus/es/components/message/style/css'
@@ -18,6 +18,7 @@ const currentUid = ref("");
 const uidList = ref<string[]>([]);
 const poolList = ref<Pool[]>([]);
 const logInfo = ref<LogInfo>(new LogInfo)
+const originalLogInfo = ref<LogInfo>(new LogInfo)
 
 
 const loading = ref(false);
@@ -69,9 +70,29 @@ const updatePoolInfo = async (isFull: boolean) => {
 
 const openInfoDialog = async () => {
   await GetLogInfo().then(result => {
-    logInfo.value = result
+    originalLogInfo.value = result
+    logInfo.value = JSON.parse(JSON.stringify(result))
   })
   dialogInfoVisible.value = true
+}
+
+const logInfoChanged = computed(() => {
+  return JSON.stringify(originalLogInfo.value) !== JSON.stringify(logInfo.value)
+})
+
+const setLogInfo = async () => {
+  await SetLogInfo(logInfo.value).then(
+      () => {
+        ElMessage({
+          message: '修改成功',
+          type: 'success',
+          plain: true,
+          showClose: true,
+          duration: 2000
+        })
+        dialogInfoVisible.value = false
+      }
+  )
 }
 
 const mergeEreRecord = async (typ: string) => {
@@ -253,9 +274,11 @@ onMounted(async () => {
         </div>
         <div class="flex items-center gap-2">
           <div class="w-24 shrink-0">AccessToken</div>
-          <el-input class="grow" readonly type="password" v-model="logInfo.accessToken"/>
+<!--          现在允许用户自行填写AccessToken-->
+          <el-input class="grow" type="password" v-model="logInfo.accessToken"/>
           <el-button text :icon="CopyDocument" circle @click="copyAccessToken"/>
         </div>
+        <el-button v-if="logInfoChanged" type="success" @click="setLogInfo">保存</el-button>
         <el-alert title="AccessToken是您的临时登录凭证，请自行把控风险，切勿随意泄露" type="warning" show-icon :closable="false"></el-alert>
       </div>
     </el-dialog>

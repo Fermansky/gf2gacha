@@ -15,6 +15,9 @@ func UpdatePoolInfo(isFull bool) (messageList []string, err error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	if logInfo.AccessToken == "" {
+		return nil, errors.New("Access Token不存在")
+	}
 
 	messageList = append(messageList, logInfo.Uid)
 	for _, poolTypeUnit := range preload.PoolTypeMap {

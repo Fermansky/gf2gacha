@@ -38,6 +38,8 @@ export function SaveSettingFont(arg1:string):Promise<void>;
 
 export function SaveSettingLayout(arg1:number):Promise<void>;
 
+export function SetLogInfo(arg1:model.LogInfo):Promise<void>;
+
 export function UpdatePoolInfo(arg1:boolean):Promise<Array<string>>;
 
 export function UpdateTo(arg1:string):Promise<string>;

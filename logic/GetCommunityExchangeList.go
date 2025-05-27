@@ -13,6 +13,9 @@ func GetCommunityExchangeList() ([]model.CommunityExchangeList, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	if logInfo.AccessToken == "" {
+		return nil, errors.New("Access Token不存在")
+	}
 
 	webToken, err := request.CommunityLogin(logInfo.AccessToken)
 	if err != nil {

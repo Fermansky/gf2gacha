@@ -37,6 +37,10 @@ func (a *App) GetLogInfo() model.LogInfo {
 	return info
 }
 
+func (a *App) SetLogInfo(info model.LogInfo) {
+	config.UpdateRuntimeLogInfo(info)
+}
+
 func (a *App) GetUserList() []string {
 	userList, err := logic.GetUserList()
 	if err != nil {

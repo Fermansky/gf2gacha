@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"gf2gacha/logger"
+	"gf2gacha/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -81,4 +82,30 @@ func GetLayout() int64 {
 func SetLayout(layoutType int64) error {
 	viper.Set("layout", layoutType)
 	return viper.WriteConfig()
+}
+
+// 临时的LogInfo，主要用于存储用户上传的AccessToken
+
+var (
+	runtimeLogInfo model.LogInfo
+)
+
+func GetRuntimeLogInfo() model.LogInfo {
+	return runtimeLogInfo
+}
+
+func UpdateRuntimeLogInfo(logInfo model.LogInfo) {
+	if logInfo.AccessToken != "" {
+		runtimeLogInfo.AccessToken = logInfo.AccessToken
+	}
+}
+
+func FillLogInfoDefaults(in model.LogInfo) model.LogInfo {
+	result := in
+
+	if result.AccessToken == "" {
+		result.AccessToken = runtimeLogInfo.AccessToken
+	}
+
+	return result
 }
